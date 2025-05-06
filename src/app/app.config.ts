@@ -13,9 +13,6 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: Aura,
-        options: {
-          respectPrefersColorScheme: true // 👈 esto fuerza a ignorar dark mode del sistema
-        }
       }
     })
   ]
