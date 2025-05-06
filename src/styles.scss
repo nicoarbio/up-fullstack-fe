@@ -1,1 +1,38 @@
-/* You can add global styles to this file, and also import other style files */
+// 🎨 Paleta de colores global - sistema de gestión de turnos / alquiler de playa
+
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap";
+
+// Colores Principales
+$azul-turquesa: #40E0D0;
+$azul-profundo: #005F89;
+$amarillo-soleado: #FFD700;
+$coral-vibrante: #FF6B6B;
+$beige-arena: #F4E9D6;
+
+
+// Colores de estado
+$verde-exito: #4CAF50;
+$naranja-advertencia: #FF9800;
+$rojo-error: #F44336;
+
+// Colores de texto
+$texto-primario: #333333;
+$texto-secundario: #757575;
+$texto-inactivo: #BDBDBD;
+
+// Fuente principal
+$fuente-principal: 'Inter', sans-serif;
+
+// Fondos
+$fondo-gradiente: linear-gradient(135deg, $azul-turquesa, $azul-profundo);
+$blanco-transparente: rgba(255, 255, 255, 0.85);
+
+// Ejemplo de uso global
+body {
+  font-family: $fuente-principal;
+  background: $fondo-gradiente;
+  color: $texto-primario;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
