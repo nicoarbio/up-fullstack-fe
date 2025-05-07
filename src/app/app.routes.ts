@@ -6,7 +6,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { OrderComponent } from './pages/order/order.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'bookings', pathMatch: 'full' },
+  // { path: '', redirectTo: 'bookings', pathMatch: 'full' },
   { path: 'bookings', component: BookingsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'cart', component: CartComponent },
