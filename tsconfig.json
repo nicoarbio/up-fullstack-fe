@@ -24,7 +24,8 @@
       "@services/*": [ "src/app/services/*" ],
       "@components/*": [ "src/app/components/*" ],
       "@models/*": [ "src/app/models/*" ],
-      "@interceptors/*": [ "src/app/interceptors/*" ]
+      "@interceptors/*": [ "src/app/interceptors/*" ],
+      "@connectors/*": [ "src/app/connectors/*" ],
     }
   },
   "angularCompilerOptions": {
