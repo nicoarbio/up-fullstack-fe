@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { BackendService } from '@connectors/backend.service';
+import { EmailPasswordLoginRequestDto } from '@models/login.dto';
 
 export interface User {
   id: string;
@@ -28,13 +29,12 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  login(email: string, password: string): Observable<any> {
+  login(data: EmailPasswordLoginRequestDto): Observable<any> {
     // TODO use RSA key to encrypt the password
-    return this.backendConnector.login(email, password).pipe(
-      tap(response => {
+    return this.backendConnector.login(data)
+      .pipe(tap(response => {
         localStorage.setItem(this.tokenKey, response.accessToken);
-      })
-    )
+      }))
   }
 
   /** TODO save in localStorage:

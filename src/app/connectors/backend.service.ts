@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import {EmailPasswordLoginRequestDto, LoginResponseDto} from '@models/login.dto';
 
 @Injectable({ providedIn: 'root' })
 export class BackendService {
@@ -12,11 +13,8 @@ export class BackendService {
   constructor(private http: HttpClient) {}
 
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<{ accessToken: string }>(this.loginUrl, {
-      email,
-      password
-    });
+  login(dto: EmailPasswordLoginRequestDto): Observable<LoginResponseDto> {
+    return this.http.post<LoginResponseDto>(this.loginUrl, dto);
   }
 
 }
