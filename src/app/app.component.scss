@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;  // Dynamic viewport height
+
+  main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto; // <- crece para ocupar el espacio disponible
+    overflow: auto; // <- habilita scroll interno si se necesita
+    justify-content: center;
+    align-items: center;
+  }
+
+}
