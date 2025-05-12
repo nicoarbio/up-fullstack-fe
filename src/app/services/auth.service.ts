@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { BackendService } from '@connectors/backend.service';
+import { EmailPasswordLoginRequestDto } from '@models/login.dto';
 
 export interface User {
   id: string;
@@ -12,13 +13,11 @@ export interface User {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
+  loginEvent = new EventEmitter<boolean>();
+
   private tokenKey = 'accessToken';
 
   constructor(private backendConnector: BackendService) {}
-
-  logout(): void {
-    localStorage.removeItem(this.tokenKey);
-  }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
@@ -28,13 +27,17 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  login(email: string, password: string): Observable<any> {
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
+    this.loginEvent.emit(false);
+  }
+
+  login(data: EmailPasswordLoginRequestDto): Observable<any> {
     // TODO use RSA key to encrypt the password
-    return this.backendConnector.login(email, password).pipe(
-      tap(response => {
+    return this.backendConnector.login(data)
+      .pipe(tap(response => {
         localStorage.setItem(this.tokenKey, response.accessToken);
-      })
-    )
+      }))
   }
 
   /** TODO save in localStorage:
