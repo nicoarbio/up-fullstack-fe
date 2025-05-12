@@ -26,6 +26,7 @@
       "@models/*": [ "src/app/models/*" ],
       "@interceptors/*": [ "src/app/interceptors/*" ],
       "@connectors/*": [ "src/app/connectors/*" ],
+      "@layouts/*": [ "src/app/layouts/*" ],
     }
   },
   "angularCompilerOptions": {
