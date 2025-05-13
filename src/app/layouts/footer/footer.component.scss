@@ -1,0 +1,66 @@
+:host {
+  background: var(--blanco-transparente);
+  padding: 0;
+
+  display: flex;
+  justify-content: space-evenly;
+
+  nav {
+    width: 100%;
+    display: flex;
+
+    button {
+      flex: 1;
+      padding: 0.75rem 0;
+      border: none;
+      background: none;
+
+      font-family: var(--fuente-secundaria);
+      color: var(--texto-primario);
+      font-size: 0.9rem;
+      text-align: center;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+
+      i {
+        font-size: 1.2rem;
+      }
+
+      &:hover {
+        background-color: var(--beige-arena);
+      }
+
+    }
+  }
+
+  nav button.active {
+    background-color: #f0f0f0;
+    color: var(--azul-profundo);
+    font-weight: 600;
+  }
+
+  nav button.active i {
+    color: var(--azul-profundo);
+  }
+
+  .desktop-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    a {
+      color: inherit;
+      font-size: 1.2rem;
+      text-decoration: none;
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+
+}

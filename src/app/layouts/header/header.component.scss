@@ -1,0 +1,37 @@
+:host {
+  background: var(--blanco-transparente);
+  padding: 10px 0 10px 0;
+
+  display: flex;
+  justify-content: space-evenly;
+
+  h1 {
+    color: var(--texto-primario);
+    font-family: var(--fuente-secundaria);
+    font-weight: 400;
+    font-style: normal;
+    text-align: center;
+    font-size: 3rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 25px;
+  }
+
+  ::ng-deep .p-button.nav-bar-button {
+    color: var(--azul-profundo);
+    border-color: var(--coral-vibrante);
+  }
+
+  ::ng-deep .p-button.nav-bar-button:hover {
+    color: var(--azul-profundo);
+    border-color: var(--coral-vibrante);
+    background-color: var(--coral-vibrante);
+  }
+
+}
