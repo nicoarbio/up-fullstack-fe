@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { environment } from '@environments/environment.development';
+import { environment } from '@environments/environment';
 import { OverlayComponent } from '@layouts/overlay/overlay.component';
 
 @Component({
@@ -72,7 +72,6 @@ export class LoginComponent {
         this.successfulLogin();
       })
       .catch((err) => {
-        console.log(err);
         OverlayComponent.spinnerEvent.emit(false);
         OverlayComponent.toastEvent.emit({
           type: 'error',
