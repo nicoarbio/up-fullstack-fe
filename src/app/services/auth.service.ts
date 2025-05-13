@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BackendService } from '@connectors/backend.service';
-import { EmailPasswordLoginRequestDto, UserProfileDto } from '@models/login.dto';
+import { EmailPasswordLoginRequestDto, LoginResponseDto, UserProfileDto } from '@models/login.dto';
 import { DateTime } from 'luxon';
 import { Observable } from 'rxjs';
 
@@ -24,8 +24,17 @@ export class AuthService {
 
   constructor(private backendConnector: BackendService) {}
 
-  login(data: EmailPasswordLoginRequestDto): Promise<any> {
+  login(data: EmailPasswordLoginRequestDto): Promise<void> {
     return this.backendConnector.login(data)
+      .then(response => {
+        localStorage.setItem(this.tokenKeys.accessToken, response.accessToken);
+        localStorage.setItem(this.tokenKeys.refreshToken, response.refreshToken);
+        this.loginEventEmitter.emit(true);
+      });
+  }
+
+  oauthGoogle(jwt: string): Promise<void> {
+    return this.backendConnector.oauthGoogle({ googleJWT: jwt })
       .then(response => {
         localStorage.setItem(this.tokenKeys.accessToken, response.accessToken);
         localStorage.setItem(this.tokenKeys.refreshToken, response.refreshToken);

@@ -20,6 +20,12 @@ export class BackendService {
     );
   }
 
+  async oauthGoogle(dto: { googleJWT: string }): Promise<LoginResponseDto> {
+    return await lastValueFrom(
+      this.http.post<LoginResponseDto>(this.createUrl(apiEndpoints.auth.oauth.google), dto)
+    );
+  }
+
   async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
     return await lastValueFrom(
       this.http.post<LoginResponseDto>(this.createUrl(apiEndpoints.auth.refresh), { refreshToken })
