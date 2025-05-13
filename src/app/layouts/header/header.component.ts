@@ -43,7 +43,7 @@ export class HeaderComponent {
   constructor(private router: Router,
               private authService: AuthService) {
     this.setLoggedIn(authService.isLoggedIn());
-    authService.loginEvent.subscribe(isLoggedIn => {
+    authService.loginEvent$.subscribe(isLoggedIn => {
       this.setLoggedIn(isLoggedIn);
     });
   }

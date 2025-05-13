@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { EmailPasswordLoginRequestDto, LoginResponseDto, UserProfileDto } from '@models/login.dto';
 import { environment } from '@environments/environment';
@@ -14,12 +14,22 @@ export class BackendService {
     return `${environment.backendHost}${path}`;
   }
 
-  login(dto: EmailPasswordLoginRequestDto): Observable<LoginResponseDto> {
-    return this.http.post<LoginResponseDto>(this.createUrl(apiEndpoints.auth.login), dto);
+  async login(dto: EmailPasswordLoginRequestDto): Promise<LoginResponseDto> {
+    return await lastValueFrom(
+      this.http.post<LoginResponseDto>(this.createUrl(apiEndpoints.auth.login), dto)
+    );
   }
 
-  getUserProfileInfo(): Observable<UserProfileDto> {
-    return this.http.get<UserProfileDto>(`${this.createUrl(apiEndpoints.profile.get)}`);
+  async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
+    return await lastValueFrom(
+      this.http.post<LoginResponseDto>(this.createUrl(apiEndpoints.auth.refresh), { refreshToken })
+    );
+  }
+
+  async getUserProfileInfo(): Promise<UserProfileDto> {
+    return await lastValueFrom(
+      this.http.get<UserProfileDto>(`${this.createUrl(apiEndpoints.profile.get)}`)
+    );
   }
 
 }

@@ -24,7 +24,7 @@ export class ProfileComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authService.loginEvent.subscribe(isLoggedIn => {
+    this.authService.loginEvent$.subscribe(isLoggedIn => {
       this.showLogOutButton = isLoggedIn;
     });
     this.showLogOutButton = this.authService.isLoggedIn();

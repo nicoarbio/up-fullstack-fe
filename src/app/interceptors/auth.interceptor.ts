@@ -4,7 +4,7 @@ import { AuthService } from '@services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const token = auth.getToken();
+  const token = auth.getValidAccessToken();
 
   const setHeaders: Record<string, string> = {
     'Accept': 'application/json',
