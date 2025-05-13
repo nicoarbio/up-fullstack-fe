@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,7 +42,7 @@ import { OverlayComponent } from '@layouts/overlay/overlay.component';
   `,
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   private static readonly DEFAULT_RETURN_URL: string = '/profile';
 
@@ -54,7 +54,9 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {
+  ) {}
+
+  public ngOnInit(): void {
     if (!environment.production) {
       this.email = 'nico@outlook.com';
       this.password = '123456';
