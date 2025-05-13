@@ -5,7 +5,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 export type ToastInfo = {
-  type: 'error' | 'info' | 'success',
+  type: 'success'  | 'info' | 'warn' | 'error',
   title: string,
   message: string,
 }
