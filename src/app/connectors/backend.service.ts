@@ -11,7 +11,7 @@ export class BackendService {
   constructor(private http: HttpClient) {}
 
   private createUrl(path: string): string {
-    return `${environment.backendApiUrl}${path}`;
+    return `${environment.backendHost}${path}`;
   }
 
   login(dto: EmailPasswordLoginRequestDto): Observable<LoginResponseDto> {
