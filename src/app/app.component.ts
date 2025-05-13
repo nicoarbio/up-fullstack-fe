@@ -28,11 +28,13 @@ import { OverlayComponent } from '@layouts/overlay/overlay.component';
 })
 export class AppComponent implements OnInit {
 
-  isMobile = window.innerWidth < 768;
+  public static readonly MAX_MOBILE_WIDTH: number = 950;
+
+  isMobile = window.innerWidth < AppComponent.MAX_MOBILE_WIDTH;
 
   ngOnInit() {
     window.addEventListener('resize', () => {
-      this.isMobile = window.innerWidth < 768;
+      this.isMobile = window.innerWidth < AppComponent.MAX_MOBILE_WIDTH;
     });
   }
 
