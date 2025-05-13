@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '@layouts/header/header.component';
 import { FooterComponent } from '@layouts/footer/footer.component';
+import { OverlayComponent } from '@layouts/overlay/overlay.component';
 
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    OverlayComponent
   ],
   template: `
     <header>
@@ -20,6 +22,7 @@ import { FooterComponent } from '@layouts/footer/footer.component';
     <footer>
         <app-footer [isMobile]="isMobile"></app-footer>
     </footer>
+    <app-overlay></app-overlay>
   `,
   styleUrl: './app.component.scss'
 })
