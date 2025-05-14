@@ -40,12 +40,12 @@ declare const google: any;
         </p-floatlabel>
 
         <p-button label="Ingresar" (click)="emailPasswordLogin()" [disabled]="!email || !password"></p-button>
-        <p>linea-divisoria</p>
+        <hr>
 
         <p>Usuario nuevo?</p>
         <p-button label="Registrarme"></p-button>
 
-        <p>linea-divisoria</p>
+        <hr>
         <p>También podes iniciar sesión o registrarte con Google</p>
 
         <div id="googleButton" allow="identity-credentials-get"></div>
