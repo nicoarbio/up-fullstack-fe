@@ -28,14 +28,14 @@ declare const google: any;
     <div class="login-form">
       <h2>Iniciar sesión</h2>
 
-      <ng-container class="p-fluid">
+      <form class="p-fluid">
         <p-floatlabel variant="on">
-          <input pInputText id="email" [(ngModel)]="email" />
+          <input pInputText id="email" [(ngModel)]="email" name="email" autocomplete="username" />
           <label for="email">Email</label>
         </p-floatlabel>
 
         <p-floatlabel variant="on">
-          <p-password id="password" [(ngModel)]="password" [feedback]="false" [toggleMask]="true" />
+          <p-password id="password" [(ngModel)]="password" [feedback]="false" [toggleMask]="true" name="password" autocomplete="current-password" />
           <label for="password">Contraseña</label>
         </p-floatlabel>
 
@@ -49,7 +49,7 @@ declare const google: any;
         <p>También podes iniciar sesión o registrarte con Google</p>
 
         <div id="googleButton" allow="identity-credentials-get"></div>
-      </ng-container>
+      </form>
     </div>
   `,
   styleUrl: './login.component.scss'
