@@ -38,18 +38,17 @@ declare const google: any;
           <p-password id="password" [(ngModel)]="password" [feedback]="false" [toggleMask]="true" name="password" autocomplete="current-password" />
           <label for="password">Contraseña</label>
         </p-floatlabel>
-
-        <p-button label="Ingresar" (click)="emailPasswordLogin()" [disabled]="!email || !password"></p-button>
-        <hr>
-
-        <p>Usuario nuevo?</p>
-        <p-button label="Registrarme"></p-button>
-
-        <hr>
-        <p>También podes iniciar sesión o registrarte con Google</p>
-
-        <div id="googleButton" allow="identity-credentials-get"></div>
       </form>
+
+      <p-button label="Ingresar" (click)="emailPasswordLogin()" [disabled]="!email || !password"></p-button>
+
+      <div class="divider">¿Usuario nuevo?</div>
+
+      <p-button label="Registrarme" (click)="functionNotAvailable()"></p-button>
+
+      <div class="divider">O continuar con</div>
+
+      <div id="googleButton" allow="identity-credentials-get"></div>
     </div>
   `,
   styleUrl: './login.component.scss'
@@ -135,4 +134,11 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  functionNotAvailable() {
+    OverlayComponent.toastEvent.emit({
+      type: 'warn',
+      title: 'Atención',
+      message: 'Esta funcionalidad estará disponible pronto',
+    });
+  }
 }
