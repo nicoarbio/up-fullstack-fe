@@ -68,11 +68,11 @@ export class LoginComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    this.initializeGoogleLogin()
     if (!environment.production) {
       this.email = 'nico@outlook.com';
       this.password = '123456';
     }
+    this.initializeGoogleLogin();
   }
 
   public emailPasswordLogin(): void {
@@ -113,15 +113,19 @@ export class LoginComponent implements OnInit {
   }
 
   public initializeGoogleLogin(): void {
-    google.accounts.id.initialize({
-      client_id: "205278716679-sas68d5f4trinhumfutpc6i1jdu6ed7a.apps.googleusercontent.com",
-      callback: this.googleOauthLogin.bind(this)
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("googleButton"),
-      { theme: "outline", size: "large" }
-    );
-    google.accounts.id.prompt();
+    try {
+      google.accounts.id.initialize({
+        client_id: "205278716679-sas68d5f4trinhumfutpc6i1jdu6ed7a.apps.googleusercontent.com",
+        callback: this.googleOauthLogin.bind(this)
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("googleButton"),
+        { theme: "outline", size: "large" }
+      );
+      google.accounts.id.prompt();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   public successfulLogin(): void {
