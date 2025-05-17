@@ -10,6 +10,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { environment } from '@environments/environment';
 import { OverlayComponent } from '@layouts/overlay/overlay.component';
 import { PasswordModule } from 'primeng/password';
+import { Observer } from 'rxjs';
+import { LoginResponseDto } from '@models/user.dto';
 
 declare const google: any;
 
@@ -79,36 +81,12 @@ export class LoginComponent implements OnInit {
     this.authService.login({
       email: this.email,
       password: this.password
-    })
-      .then(() =>{
-        OverlayComponent.spinnerEvent.emit(false);
-        this.successfulLogin();
-      })
-      .catch((err) => {
-        OverlayComponent.spinnerEvent.emit(false);
-        OverlayComponent.toastEvent.emit({
-          type: 'error',
-          title: 'Error',
-          message: err.error?.error || err.statusText || 'Error al iniciar sesión',
-        });
-      })
+    }).subscribe(this.manageLoginEvent);
   }
 
-  public googleOauthLogin(response: any): void {
+  public googleOauthLogin(googleResponse: any): void {
     OverlayComponent.spinnerEvent.emit(true);
-    this.authService.oauthGoogle(response.credential)
-      .then(() =>{
-        OverlayComponent.spinnerEvent.emit(false);
-        this.successfulLogin();
-      })
-      .catch((err) => {
-        OverlayComponent.spinnerEvent.emit(false);
-        OverlayComponent.toastEvent.emit({
-          type: 'error',
-          title: 'Error',
-          message: err.error?.error || err.statusText || 'Error al iniciar sesión',
-        });
-      })
+    this.authService.oauthGoogle(googleResponse.credential).subscribe(this.manageLoginEvent);
   }
 
   public initializeGoogleLogin(): void {
@@ -124,13 +102,37 @@ export class LoginComponent implements OnInit {
       google.accounts.id.prompt();
     } catch (e) {
       console.error(e);
+      OverlayComponent.toastEvent.emit({
+        type: 'error',
+        title: 'Error',
+        message: 'Error al cargar el botón de Google',
+      })
     }
   }
 
-  public successfulLogin(): void {
+  private manageLoginEvent: Partial<Observer<LoginResponseDto>> = {
+    next: () => {
+      OverlayComponent.spinnerEvent.emit(false);
+      this.successfulLogin();
+    },
+    error: err => {
+      OverlayComponent.spinnerEvent.emit(false);
+      this.failureLogin(err);
+    }
+  }
+
+  private successfulLogin(): void {
     this.route.queryParams.subscribe(params => {
       const returnUrl = params['returnUrl'] || LoginComponent.DEFAULT_RETURN_URL;
       this.router.navigateByUrl(returnUrl);
+    });
+  }
+
+  private failureLogin(err: any): void {
+    OverlayComponent.toastEvent.emit({
+      type: 'error',
+      title: 'Error',
+      message: err.error?.error || err.statusText || 'Error al iniciar sesión',
     });
   }
 
