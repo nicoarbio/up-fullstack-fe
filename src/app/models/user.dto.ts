@@ -8,7 +8,7 @@ export interface LoginResponseDto {
   refreshToken: string;
 }
 
-export interface UserProfileDto {
+export interface UserProfile {
   name: string,
   lastname: string,
   email: string,
