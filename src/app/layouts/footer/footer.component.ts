@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -13,7 +13,7 @@ import { AuthService } from '@services/auth.service';
     RouterLinkActive
   ],
   template: `
-    <ng-container *ngIf="isMobile(); else desktopFooter">
+    <ng-container *ngIf="isMobile() else desktopFooter">
       <nav>
         <button routerLink="/cart" routerLinkActive="active">
           <i class="pi pi-shopping-cart"></i>
@@ -46,9 +46,9 @@ import { AuthService } from '@services/auth.service';
   `,
   styleUrl: './footer.component.scss'
 })
-export class FooterComponent {
+export class FooterComponent implements OnInit {
 
-  isMobile = input<boolean>();
+  isMobile = input.required<boolean>();
 
   static FOOTER_LABELS = {
     title: 'TropicalHub © 2025',
@@ -69,9 +69,11 @@ export class FooterComponent {
   cartLbl = FooterComponent.FOOTER_LABELS.nav.cart;
 
   constructor(private router: Router,
-              private authService: AuthService) {
-    this.setLoggedIn(authService.isLoggedIn());
-    authService.loginEvent$.subscribe(isLoggedIn => {
+              private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.isLoggedIn().subscribe(loggedIn => this.setLoggedIn(loggedIn));
+    this.authService.loginEvent$.subscribe(isLoggedIn => {
       this.setLoggedIn(isLoggedIn);
     });
   }

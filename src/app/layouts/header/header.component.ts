@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '@services/auth.service';
@@ -19,9 +19,9 @@ import { Router, RouterLink } from '@angular/router';
   `,
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
 
-  isMobile = input<boolean>();
+  isMobile = input.required<boolean>();
 
   static HEADER_LABELS = {
     title: 'TropicalHub',
@@ -41,9 +41,11 @@ export class HeaderComponent {
   cartLbl = HeaderComponent.HEADER_LABELS.nav.cart;
 
   constructor(private router: Router,
-              private authService: AuthService) {
-    this.setLoggedIn(authService.isLoggedIn());
-    authService.loginEvent$.subscribe(isLoggedIn => {
+              private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.isLoggedIn().subscribe(loggedIn => this.setLoggedIn(loggedIn));
+    this.authService.loginEvent$.subscribe(isLoggedIn => {
       this.setLoggedIn(isLoggedIn);
     });
   }
