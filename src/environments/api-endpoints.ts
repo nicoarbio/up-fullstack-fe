@@ -5,7 +5,8 @@ export const apiEndpoints = {
     signup: `/api/v1/auth/signup`,
     oauth: {
       google: `/api/v1/oauth/google`
-    }
+    },
+    check: `/api/v1/debug/auth`,
   },
   bookings: {
     availability: `/api/v1/services/availability`,

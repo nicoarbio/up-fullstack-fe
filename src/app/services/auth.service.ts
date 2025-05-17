@@ -1,9 +1,9 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BackendService } from '@connectors/backend.service';
-import { EmailPasswordLoginRequestDto, LoginResponseDto, UserProfileDto } from '@models/login.dto';
+import { EmailPasswordLoginRequestDto, LoginResponseDto, UserProfile } from '@models/user.dto';
 import { DateTime } from 'luxon';
-import { Observable } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 
 export interface UserJwtPayload extends JwtPayload {
   id: string;
@@ -24,22 +24,20 @@ export class AuthService {
 
   constructor(private backendConnector: BackendService) {}
 
-  login(data: EmailPasswordLoginRequestDto): Promise<void> {
+  login(data: EmailPasswordLoginRequestDto): Observable<LoginResponseDto> {
     return this.backendConnector.login(data)
-      .then(response => {
-        localStorage.setItem(this.tokenKeys.accessToken, response.accessToken);
-        localStorage.setItem(this.tokenKeys.refreshToken, response.refreshToken);
-        this.loginEventEmitter.emit(true);
-      });
+      .pipe(tap(this.setLoginState.bind(this)));
   }
 
-  oauthGoogle(jwt: string): Promise<void> {
+  oauthGoogle(jwt: string): Observable<LoginResponseDto> {
     return this.backendConnector.oauthGoogle({ googleJWT: jwt })
-      .then(response => {
-        localStorage.setItem(this.tokenKeys.accessToken, response.accessToken);
-        localStorage.setItem(this.tokenKeys.refreshToken, response.refreshToken);
-        this.loginEventEmitter.emit(true);
-      });
+      .pipe(tap(this.setLoginState.bind(this)));
+  }
+
+  private setLoginState(response: LoginResponseDto): void {
+    localStorage.setItem(this.tokenKeys.accessToken, response.accessToken);
+    localStorage.setItem(this.tokenKeys.refreshToken, response.refreshToken);
+    this.loginEventEmitter.emit(true);
   }
 
   logout(): void {
@@ -48,54 +46,57 @@ export class AuthService {
     this.loginEventEmitter.emit(false);
   }
 
-  async getUserProfileInfo(): Promise<UserProfileDto | null> {
-    if (!this.isLoggedIn()) return null;
-
-    return await this.backendConnector.getUserProfileInfo();
+  getUserProfileInfo(): Observable<UserProfile | null> {
+    return this.isLoggedIn().pipe(switchMap(loggedIn => {
+      if (!loggedIn) return of(null);
+      return this.backendConnector.getUserProfileInfo();
+    }));
   }
 
-  isLoggedIn(): boolean {
-    return !!this.getDecodedAccessToken();
+  isLoggedIn(): Observable<boolean> {
+    return this.getValidAccessToken().pipe(
+      switchMap(accessToken => {
+        if (accessToken) {
+          return of(true);
+        }
+        return of(false);
+      })
+    );
   }
 
-  async getValidAccessToken(): Promise<string | null> {
+  getValidAccessToken(): Observable<string | null> {
     const accessToken = localStorage.getItem(this.tokenKeys.accessToken);
     const refreshToken = localStorage.getItem(this.tokenKeys.refreshToken);
 
-    if (!accessToken || !refreshToken) return null;
+    if (!accessToken || !refreshToken) return of(null);
 
     try {
       const accessJwt = jwtDecode<UserJwtPayload>(accessToken);
 
       if (!this.isTokenExpired(accessJwt)) {
-        return accessToken;
+        return of(accessToken);
       }
 
       const refreshJwt = jwtDecode<UserJwtPayload>(refreshToken);
       if (this.isTokenExpired(refreshJwt)) {
         this.logout();
-        return null;
+        return of(null);
       }
 
-      const response = await this.backendConnector.refreshToken(refreshToken);
-      const newAccess = response.accessToken;
-
-      localStorage.setItem(this.tokenKeys.accessToken, newAccess);
-      return newAccess;
-
+      return this.backendConnector.refreshToken(refreshToken)
+        .pipe(switchMap(response => {
+            const newAccess = response.accessToken;
+            localStorage.setItem(this.tokenKeys.accessToken, newAccess);
+            return newAccess;
+          }));
     } catch (e) {
       this.logout();
-      return null;
+      return of(null);
     }
   }
 
-  private isTokenExpired(jwtPayload: UserJwtPayload): boolean {
-    const tokenExp = DateTime.fromSeconds(jwtPayload.exp || 0);
-    return tokenExp <= DateTime.now();
-  }
-
   private getDecodedAccessToken(): UserJwtPayload | null {
-    const token = this.getAccessToken();
+    const token = this.getLocalStorageAccessToken();
     if (!token) return null;
 
     try {
@@ -105,8 +106,13 @@ export class AuthService {
     }
   }
 
-  private getAccessToken(): string | null {
-    return localStorage.getItem(this.tokenKeys.accessToken) || null;
+  private getLocalStorageAccessToken(): string | null {
+    return localStorage.getItem(this.tokenKeys.accessToken);
+  }
+
+  private isTokenExpired(jwtPayload: UserJwtPayload): boolean {
+    const tokenExp = DateTime.fromSeconds(jwtPayload.exp || 0);
+    return tokenExp <= DateTime.now();
   }
 
 }
