@@ -92,7 +92,7 @@ export class LoginComponent implements OnInit {
   public initializeGoogleLogin(): void {
     try {
       google.accounts.id.initialize({
-        client_id: "205278716679-sas68d5f4trinhumfutpc6i1jdu6ed7a.apps.googleusercontent.com",
+        client_id: environment.googleClientId,
         callback: this.googleOauthLogin.bind(this)
       });
       google.accounts.id.renderButton(
