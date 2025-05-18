@@ -57,7 +57,7 @@ declare const google: any;
 })
 export class LoginComponent implements OnInit {
 
-  private static readonly DEFAULT_RETURN_URL: string = '/profile';
+  private static readonly DEFAULT_RETURN_URL: string = '/bookings';
 
   email = '';
   password = '';
