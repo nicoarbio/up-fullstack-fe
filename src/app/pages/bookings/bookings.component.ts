@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@services/auth.service';
-import { NgFor, NgIf } from '@angular/common';
+import { Location, NgFor, NgIf } from '@angular/common';
 import { BackendService } from '@connectors/backend.service';
 import { DateTime } from 'luxon';
 import { OverlayComponent } from '@layouts/overlay/overlay.component';
 import { Booking, OrderBy, SortBy } from '@models/booking.dto';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-bookings',
@@ -13,30 +14,34 @@ import { Booking, OrderBy, SortBy } from '@models/booking.dto';
     NgFor
   ],
   template: `
-    <h1 *ngIf="!isLoggedIn">Inicie sesión para ver sus turnos</h1>
-    Query params:
-    <ul>
-      <li>searchDate: {{ searchDate }}</li>
-      <li>sortBy: {{ sortBy }}</li>
-      <li>order: {{ order }}</li>
-      <li>limit: {{ limit }}</li>
-      <li>page: {{ page }}</li>
-    </ul>
-    <ng-container *ngIf="bookings.length else noBookings">
-      Bookings:
+    <h1 *ngIf="!isLoggedIn else showBookings">Inicie sesión para ver sus turnos</h1>
+    <ng-template #showBookings>
+      Query params:
       <ul>
-        <li *ngFor="let booking of bookings">
-          <p>Booking ID: {{ booking.id }}</p>
-          <p>Product: {{ booking.product.type }}</p>
-          <p>Start Time: {{ booking.startTime }}</p>
-          <p>End Time: {{ booking.endTime }}</p>
-          <p>Status: {{ booking.status }}</p>
-          <p>Price: {{ booking.price }}</p>
-        </li>
+        <li>page: {{ page }}</li>
+        <li>limit: {{ limit }}</li>
+        <li>total: {{ total }}</li>
+        <li>totalPages: {{ totalPages }}</li>
+        <li>sortBy: {{ sortBy }}</li>
+        <li>order: {{ order }}</li>
+        <li>searchDate: {{ searchDate.toFormat('y-MM-dd') }}</li>
       </ul>
-    </ng-container>
-    <ng-template #noBookings>
-      <p>No bookings found.</p>
+      <ng-container *ngIf="!!total else noBookings">
+        Bookings:
+        <ul>
+          <li *ngFor="let booking of bookings">
+            <p>Booking ID: {{ booking.id }}</p>
+            <p>Product: {{ booking.product.type }}</p>
+            <p>Start Time: {{ booking.startTime }}</p>
+            <p>End Time: {{ booking.endTime }}</p>
+            <p>Status: {{ booking.status }}</p>
+            <p>Price: {{ booking.price }}</p>
+          </li>
+        </ul>
+      </ng-container>
+      <ng-template #noBookings>
+        <p>No bookings found.</p>
+      </ng-template>
     </ng-template>
   `,
   styleUrl: './bookings.component.scss'
@@ -45,51 +50,33 @@ export class BookingsComponent implements OnInit {
 
   isLoggedIn = false;
 
-  searchDate: DateTime = DateTime.now();
+  page: number = 0;
+  limit: number = 5;
+  total: number = 0;
+  totalPages: number = 0;
   sortBy: SortBy = 'startTime';
   order: OrderBy = 'desc';
-  limit: number = 5;
-  page: number = 1;
-
+  searchDate: DateTime = DateTime.now().startOf('day');
   bookings: Booking[] = [];
 
   constructor(
     private authService: AuthService,
-    private backendConnector: BackendService
+    private backendConnector: BackendService,
+    private location: Location,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
     this.authService.isLoggedIn().subscribe(loggedIn => this.isLoggedIn = loggedIn);
 
-    // TODO Leer parámetros de la URL al iniciar
-/*    this.route.queryParams.subscribe(params:any => {
-      if (params['searchDate']) this.searchDate = DateTime.fromISO(params['searchDate']);
-      if (params['sortBy']) this.sortBy = params['sortBy'] as SortBy;
-      if (params['order']) this.order = params['order'] as OrderBy;
-      if (params['limit']) this.limit = params['limit'];
-      if (params['page']) this.page = params['page'];
-    });*/
-
     if (this.isLoggedIn) {
+      this.readParamsFromUrl();
       this.loadBookings();
+    } else {
+      this.location.replaceState('/bookings');
     }
   }
 
-  // TODO here
-  // http://localhost:8081/api/v1/bookings?
-  // searchDate=2025-04-13&sortBy=startTime&order=desc&limit=5&page=1
-  /*
-    {
-      "page": 0,
-      "limit": 5,
-      "total": 0,
-      "totalPages": 0,
-      "sortBy": "startTime",
-      "order": "desc",
-      "date": "2025-04-13T00:00:00.000-03:00",
-      "data": []
-    }
-  */
   loadBookings() {
     OverlayComponent.spinnerEvent.emit(true);
     this.backendConnector.getBookings({
@@ -101,12 +88,23 @@ export class BookingsComponent implements OnInit {
     }).subscribe({
       next: (response) => {
         OverlayComponent.spinnerEvent.emit(false);
+        this.page = response.page;
+        this.limit = response.limit;
+        this.total = response.total;
+        this.totalPages = response.totalPages;
         this.sortBy = response.sortBy;
         this.order = response.order;
-        this.limit = response.limit;
-        this.page = response.page;
+        this.searchDate = DateTime.fromISO(response.date as string);
         this.bookings = response.data;
-        // TODO put queryParams in browser url
+
+        const params = new URLSearchParams({
+            searchDate: this.formatDate(this.searchDate),
+            sortBy: this.sortBy,
+            order: this.order,
+            limit: this.limit.toString(),
+            page: this.page.toString()
+        } as Record<string, string>);
+        this.location.replaceState('/bookings', params.toString());
       },
       error: (err) => {
         OverlayComponent.spinnerEvent.emit(false);
@@ -117,6 +115,27 @@ export class BookingsComponent implements OnInit {
         });
       }
     })
+  }
+
+  readParamsFromUrl(): void {
+    this.route.queryParams.subscribe(params => {
+      const {
+        searchDate,
+        sortBy,
+        order,
+        limit,
+        page
+      } = params;
+      if (searchDate && DateTime.fromISO(searchDate).isValid) this.searchDate = DateTime.fromISO(searchDate).startOf('day');
+      if (sortBy) this.sortBy = sortBy as SortBy;
+      if (order) this.order = order as OrderBy;
+      if (limit) this.limit = limit;
+      if (page) this.page = page;
+    });
+  }
+
+  private formatDate(date: DateTime): string {
+    return date.toFormat('y-MM-dd');
   }
 
 }
