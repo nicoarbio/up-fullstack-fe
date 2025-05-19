@@ -65,8 +65,8 @@ export class AuthService {
   }
 
   getValidAccessToken(): Observable<string | null> {
-    const accessToken = localStorage.getItem(this.tokenKeys.accessToken);
-    const refreshToken = localStorage.getItem(this.tokenKeys.refreshToken);
+    const accessToken = this.getLocalStorageAccessToken();
+    const refreshToken = this.getLocalStorageRefreshToken();
 
     if (!accessToken || !refreshToken) return of(null);
 
@@ -108,6 +108,10 @@ export class AuthService {
 
   private getLocalStorageAccessToken(): string | null {
     return localStorage.getItem(this.tokenKeys.accessToken);
+  }
+
+  private getLocalStorageRefreshToken(): string | null {
+    return localStorage.getItem(this.tokenKeys.refreshToken);
   }
 
   private isTokenExpired(jwtPayload: UserJwtPayload): boolean {
