@@ -69,7 +69,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    if (!environment.mockCredentials) {
+    if (environment.mockCredentials) {
       this.email = 'nico@tropicalhub.com';
       this.password = '123456';
     }
