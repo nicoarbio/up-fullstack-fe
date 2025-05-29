@@ -1,8 +1,17 @@
 import { DateTime } from 'luxon';
-import { Accessory, Product } from '@models/business-rules.enum';
+import { Accessory, Product, RuleType } from '@models/business-rules.enum';
+import { SelectItem } from 'primeng/api';
+import { OrderStatus } from '@models/order.enum';
 
-export type SortBy = 'createdAt' | 'startTime' | 'price' | 'status' | 'finalPrice';
+export type SortBy = 'createdAt' | 'startTime' | 'price' | 'status';
 export type OrderBy = 'asc' | 'desc';
+
+export const sortByOptions: SelectItem[] = [
+  { label: 'Fecha de creación', value: 'createdAt' },
+  { label: 'Fecha de inicio', value: 'startTime' },
+  { label: 'Estado', value: 'status' },
+  { label: 'Precio', value: 'price' }
+];
 
 export interface BookingsRequestDto {
   searchDate: string | DateTime,
@@ -35,25 +44,51 @@ export enum ItemRefundStatus {
 }
 
 export interface Booking {
-  id: string,
+  _id: string,
   userId: string,
+  userFullName: string,
   orderId: string,
   product: {
     type: Product,
     stockId: string
   },
-  passengers: [{
+  passengers: {
     fullName: string,
     birthdate: string | DateTime,
-    accessories: [{
+    accessories: {
       type: Accessory
       stockId: string
-    }],
-  }],
+    }[],
+  }[],
   startTime: string | DateTime,
   endTime: string | DateTime,
   price: number,
   status: BookingStatus,
+  orderStatus: OrderStatus,
   refundStatus: ItemRefundStatus,
+}
+
+export interface Order {
+  userId: string,
+  bookings: string[],
+  extras: {
+    name: string,
+    type: RuleType,
+    value: number,
+    price: number
+  }[],
+  discounts: {
+    name: string,
+    type: RuleType,
+    value: number,
+    price: number
+  }[],
+  totalPrice: number,
+  totalExtras: number,
+  totalDiscount: number,
+  finalPrice: number,
+  status: number,
+  paymentId: string,
+  refundIds: string[],
 }
 

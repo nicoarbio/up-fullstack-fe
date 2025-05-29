@@ -18,6 +18,30 @@ export const appConfig: ApplicationConfig = {
         options: {
           darkModeSelector: false
         }
+      },
+      translation: {
+         dayNames: [
+           'Domingo',
+           'Lunes',
+           'Martes',
+           'Miércoles',
+           'Jueves',
+           'Viernes',
+           'Sábado'],
+        monthNames: [
+          'Enero',
+          'Febrero',
+          'Marzo',
+          'Abril',
+          'Mayo',
+          'Junio',
+          'Julio',
+          'Agosto',
+          'Septiembre',
+          'Octubre',
+          'Noviembre',
+          'Diciembre'
+        ]
       }
     }),
     provideHttpClient(withInterceptors([ authInterceptor ]))

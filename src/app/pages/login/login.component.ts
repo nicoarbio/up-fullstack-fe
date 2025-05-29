@@ -69,8 +69,8 @@ export class LoginComponent implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    if (!environment.production) {
-      this.email = 'nico@outlook.com';
+    if (!environment.mockCredentials) {
+      this.email = 'nico@tropicalhub.com';
       this.password = '123456';
     }
     this.initializeGoogleLogin();

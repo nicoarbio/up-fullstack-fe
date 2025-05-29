@@ -1,52 +1,107 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@services/auth.service';
-import { Location, NgFor, NgIf } from '@angular/common';
+import { CommonModule, Location, NgIf } from '@angular/common';
 import { BackendService } from '@connectors/backend.service';
 import { DateTime } from 'luxon';
 import { OverlayComponent } from '@layouts/overlay/overlay.component';
-import { Booking, OrderBy, SortBy } from '@models/booking.dto';
+import {
+  Booking,
+  BookingStatus,
+  OrderBy,
+  SortBy,
+  sortByOptions
+} from '@models/booking.dto';
 import { ActivatedRoute } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { Tag } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { PaginatorModule } from 'primeng/paginator';
+import { TableModule } from 'primeng/table';
+import { OrderStatus } from '@models/order.enum';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-bookings',
   imports: [
     NgIf,
-    NgFor
+    DatePickerModule,
+    TableModule, ButtonModule, Tag, CommonModule, DropdownModule, Select, FormsModule, PaginatorModule
   ],
   template: `
-    <h1 *ngIf="!isLoggedIn else showBookings">Inicie sesión para ver sus turnos</h1>
+    <h1 *ngIf="!isLoggedIn else showBookings">{{ notLoggedInMessage }}</h1>
     <ng-template #showBookings>
-      Query params:
-      <ul>
-        <li>page: {{ page }}</li>
-        <li>limit: {{ limit }}</li>
-        <li>total: {{ total }}</li>
-        <li>totalPages: {{ totalPages }}</li>
-        <li>sortBy: {{ sortBy }}</li>
-        <li>order: {{ order }}</li>
-        <li>searchDate: {{ searchDate.toFormat('y-MM-dd') }}</li>
-      </ul>
-      <ng-container *ngIf="!!total else noBookings">
-        Bookings:
-        <ul>
-          <li *ngFor="let booking of bookings">
-            <p>Booking ID: {{ booking.id }}</p>
-            <p>Product: {{ booking.product.type }}</p>
-            <p>Start Time: {{ booking.startTime }}</p>
-            <p>End Time: {{ booking.endTime }}</p>
-            <p>Status: {{ booking.status }}</p>
-            <p>Price: {{ booking.price }}</p>
-          </li>
-        </ul>
-      </ng-container>
-      <ng-template #noBookings>
-        <p>No bookings found.</p>
-      </ng-template>
+      <!-- [sortField]="sortBy" [sortOrder]="orderByOptions[order]" -->
+      <p-table stripedRows
+               selectionMode="single"
+               (onRowSelect)="onBookingSelect($event)"
+               [value]="bookings" [paginator]="true"
+               [showCurrentPageReport]="true"
+               currentPageReportTemplate="Mostrando turnos {first} a {last} de {totalRecords} totales"
+               [lazy]="true"
+               [rows]="limit"
+               [totalRecords]="total"
+               [first]="limit * (page - 1)"
+               (onPage)="onPageChange($event)"
+      >
+        <ng-template #caption>
+          <div class="table-header">
+            <div>
+              <p-select
+                styleClass="custom-sortBy-picker"
+                [options]="sortByOptions"
+                [(ngModel)]="sortBy"
+                (onChange)="onSortChange($event)"
+              />
+              <p-button icon="pi pi-sort-amount-{{orderIcon}}" (click)="toggleOrder()" />
+            </div>
+            <div class="datepicker-container">
+              <p-button icon="pi pi-angle-left" (click)="goToPreviousDate()" />
+              <p-datepicker
+                styleClass="custom-datepicker"
+                [ngModel]="searchDateJs.dateForNgModel"
+                (ngModelChange)="searchDateJs.onNgModelChange($event)"
+                dateFormat="DD dd 'de' MM 'de' yy" />
+              <p-button icon="pi pi-angle-right" (click)="goToNextDate()" />
+            </div>
+            <p-button (click)="newBooking()">Nuevo Turno</p-button>
+          </div>
+          <div *ngIf="bookings?.length === 0" class="empty-message">
+            {{ emptyMessage }}
+          </div>
+        </ng-template>
+        <ng-template #header>
+          <tr>
+            <th>Hora inicio</th>
+            <th>Nombre Completo</th>
+            <th>Pasajeros</th>
+            <th>ID Turno</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Estado pago</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-booking>
+          <tr [pSelectableRow]="booking">
+            <td>{{ booking.startTime }}</td>
+            <td>{{ booking.userFullName }}</td>
+            <td>{{ booking.passengers?.length }}</td>
+            <td>{{ booking._id }}</td>
+            <td>$ {{ booking.price }}</td>
+            <td><p-tag [value]="statusSeverity[booking.status].label" [severity]="statusSeverity[booking.status].severity" /></td>
+            <td><p-tag [value]="statusSeverity[booking.orderStatus].label" [severity]="statusSeverity[booking.orderStatus].severity" /></td>
+          </tr>
+        </ng-template>
+      </p-table>
     </ng-template>
   `,
   styleUrl: './bookings.component.scss'
 })
 export class BookingsComponent implements OnInit {
+
+  notLoggedInMessage: string = 'Inicie sesión para ver sus turnos';
+  emptyMessage: string = 'No se han encontrado turnos para este día';
 
   isLoggedIn = false;
 
@@ -59,6 +114,21 @@ export class BookingsComponent implements OnInit {
   searchDate: DateTime = DateTime.now().startOf('day');
   bookings: Booking[] = [];
 
+  searchDateJs = {
+    dateForNgModel: this.searchDate.toJSDate(),
+    onNgModelChange: (date: Date) => {
+      this.searchDate = DateTime.fromJSDate(date);
+    }
+  }
+
+  get orderIcon() {
+    if (this.order === 'desc') return 'down';
+    if (this.order === 'asc') return 'up';
+    return 'down';
+  }
+
+  protected readonly sortByOptions = sortByOptions;
+
   constructor(
     private authService: AuthService,
     private backendConnector: BackendService,
@@ -67,20 +137,21 @@ export class BookingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.isLoggedIn().subscribe(loggedIn => this.isLoggedIn = loggedIn);
-
-    if (this.isLoggedIn) {
-      this.readParamsFromUrl();
-      this.loadBookings();
-    } else {
-      this.location.replaceState('/bookings');
-    }
+    this.authService.isLoggedIn().subscribe(loggedIn => {
+      this.isLoggedIn = loggedIn;
+      if (this.isLoggedIn) {
+        this.readParamsFromUrl();
+        this.loadBookings();
+      } else {
+        this.location.replaceState('/bookings');
+      }
+    });
   }
 
-  loadBookings() {
+  private loadBookings() {
     OverlayComponent.spinnerEvent.emit(true);
     this.backendConnector.getBookings({
-      searchDate: this.searchDate.toISO() as string,
+      searchDate: this.formatDate(this.searchDate),
       sortBy: this.sortBy,
       order: this.order,
       limit: this.limit,
@@ -96,6 +167,13 @@ export class BookingsComponent implements OnInit {
         this.order = response.order;
         this.searchDate = DateTime.fromISO(response.date as string);
         this.bookings = response.data;
+
+        this.bookings = this.bookings.map(booking => ({
+          ...booking,
+          startTime: this.formatTime(booking.startTime),
+          endTime: this.formatTime(booking.endTime),
+
+        }));
 
         const params = new URLSearchParams({
             searchDate: this.formatDate(this.searchDate),
@@ -114,10 +192,10 @@ export class BookingsComponent implements OnInit {
           message: err.error?.error || err.statusText || 'Error obteniendo los turnos',
         });
       }
-    })
+    });
   }
 
-  readParamsFromUrl(): void {
+  private readParamsFromUrl(): void {
     this.route.queryParams.subscribe(params => {
       const {
         searchDate,
@@ -134,8 +212,78 @@ export class BookingsComponent implements OnInit {
     });
   }
 
-  private formatDate(date: DateTime): string {
+  private formatDate(date: DateTime | string): string {
+    if (typeof date === 'string') {
+      date = DateTime.fromISO(date);
+    }
     return date.toFormat('y-MM-dd');
   }
+
+  private formatTime(date: DateTime | string): string {
+    if (typeof date === 'string') {
+      date = DateTime.fromISO(date);
+    }
+    return date.toFormat('HH:mm');
+  }
+
+  newBooking(): void {
+    // TODO: abrir modal para crear un nuevo turno - Modal o nuevo compo?
+    alert('Funcionalidad de crear nuevo turno aún no implementada');
+  }
+
+  onBookingSelect(event: any): void {
+    const booking = event.data as Booking;
+    // TODO: abrir modal de detalle del turno - Modal o nuevo compo?
+    alert(`Turno seleccionado: ${booking._id}`);
+    console.log("Selected booking:", booking);
+  }
+
+  onSortChange(event: { value: SortBy }): void {
+    this.sortBy = event.value;
+    this.loadBookings();
+  }
+
+  toggleOrder(): void {
+    if (this.order === 'asc') {
+      this.order = 'desc'
+    } else if (this.order === 'desc') {
+      this.order = 'asc'
+    }
+    this.loadBookings();
+  }
+
+  onPageChange(event: { first: number, rows: number }): void {
+    this.page = Math.floor(event.first / event.rows) + 1;
+    this.loadBookings();
+  }
+
+  goToPreviousDate(): void {
+    this.searchDate = this.searchDate.minus({ days: 1 });
+    this.loadBookings();
+  }
+
+  goToNextDate(): void {
+    this.searchDate = this.searchDate.plus({ days: 1 });
+    this.loadBookings();
+  }
+
+  readonly statusSeverity: Record<BookingStatus | OrderStatus | any, { label: string, severity: string }> = {
+    [BookingStatus.ACTIVE]: {
+      label: 'Activo',
+      severity: 'success'
+    },
+    [BookingStatus.CANCELLED]: {
+      label: 'Cancelado',
+      severity: 'danger'
+    },
+    [OrderStatus.PENDING]: {
+      label: 'Pendiente',
+      severity: 'warn'
+    },
+    [OrderStatus.PAID]: {
+      label: 'Completado',
+      severity: 'success'
+    }
+  };
 
 }

@@ -2,4 +2,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+   padding-top: 2rem;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.table-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.empty-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: var(--texto-primario);
+}
+
+::ng-deep .custom-datepicker {
+  width: 20rem;
+
+  input {
+    text-align: center;
+  }
+}
+
+::ng-deep .custom-sortBy-picker {
+  width: 13rem;
 }
