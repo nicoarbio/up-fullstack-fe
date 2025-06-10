@@ -1,4 +1,5 @@
 export const apiEndpoints = {
+  getBusinessRules: `/api/v1/business-rules`,
   auth: {
     login: `/api/v1/auth/login`,
     refresh: `/api/v1/auth/refresh`,

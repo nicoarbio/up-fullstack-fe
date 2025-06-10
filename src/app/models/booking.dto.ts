@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { Accessory, Product, RuleType } from '@models/business-rules.enum';
+import { Accessory, DiscountType, ExtraType, Product, RuleType } from '@models/business-rules.enum';
 import { SelectItem } from 'primeng/api';
 import { OrderStatus } from '@models/order.enum';
 
@@ -92,3 +92,47 @@ export interface Order {
   refundIds: string[],
 }
 
+export interface RequestedBooking {
+  product: Product
+  slotStart: DateTime,
+  passengers?: {
+    fullName?: string,
+    birthdate?: DateTime,
+  }[],
+  passengerAmount?: number
+}
+
+export interface OrderCreationRequest {
+  requestedBookings: RequestedBooking[],
+  extraIds: ExtraType[]
+}
+
+export interface OrderResponse {
+  bookings: {
+    slotStart: DateTime,
+    slotEnd: DateTime,
+    price: number,
+    product: {
+      type: Product,
+      stockId: string,
+      price: number
+    },
+    accessories: {
+      passangerIndex: number,
+      type: Accessory,
+      stockId: string,
+      price: number
+    }[]
+  }[],
+  totalPrice: number,
+  extras: ExtraType[],
+  totalExtras: number,
+  discounts: {
+    name: DiscountType,
+    type: RuleType,
+    value: number,
+    price: number
+  }[],
+  totalDiscount: number,
+  finalTotal: number
+}

@@ -21,18 +21,19 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { OrderStatus } from '@models/order.enum';
 import { DatePickerModule } from 'primeng/datepicker';
+import { NewBookingModalComponent } from '@components/new-booking/new-booking.component';
 
 @Component({
   selector: 'app-bookings',
   imports: [
     NgIf,
     DatePickerModule,
-    TableModule, ButtonModule, Tag, CommonModule, DropdownModule, Select, FormsModule, PaginatorModule
+    TableModule, ButtonModule, Tag, CommonModule, DropdownModule, Select, FormsModule, PaginatorModule, NewBookingModalComponent
   ],
   template: `
+    <app-new-booking-modal [(visible)]="showNewBookingModal"></app-new-booking-modal>
     <h1 *ngIf="!isLoggedIn else showBookings">{{ notLoggedInMessage }}</h1>
     <ng-template #showBookings>
-      <!-- [sortField]="sortBy" [sortOrder]="orderByOptions[order]" -->
       <p-table stripedRows
                selectionMode="single"
                (onRowSelect)="onBookingSelect($event)"
@@ -88,7 +89,7 @@ import { DatePickerModule } from 'primeng/datepicker';
             <td>{{ booking.userFullName }}</td>
             <td>{{ booking.passengers?.length }}</td>
             <td>{{ booking._id }}</td>
-            <td>$ {{ booking.price }}</td>
+            <td>{{ booking.price | currency:'$' }}</td>
             <td><p-tag [value]="statusSeverity[booking.status].label" [severity]="statusSeverity[booking.status].severity" /></td>
             <td><p-tag [value]="statusSeverity[booking.orderStatus].label" [severity]="statusSeverity[booking.orderStatus].severity" /></td>
           </tr>
@@ -128,6 +129,8 @@ export class BookingsComponent implements OnInit {
   }
 
   protected readonly sortByOptions = sortByOptions;
+
+  showNewBookingModal = false;
 
   constructor(
     private authService: AuthService,
@@ -204,7 +207,10 @@ export class BookingsComponent implements OnInit {
         limit,
         page
       } = params;
-      if (searchDate && DateTime.fromISO(searchDate).isValid) this.searchDate = DateTime.fromISO(searchDate).startOf('day');
+      if (searchDate && DateTime.fromISO(searchDate).isValid) {
+        this.searchDate = DateTime.fromISO(searchDate).startOf('day');
+        this.searchDateJs.dateForNgModel = this.searchDate.toJSDate();
+      }
       if (sortBy) this.sortBy = sortBy as SortBy;
       if (order) this.order = order as OrderBy;
       if (limit) this.limit = limit;
@@ -227,15 +233,13 @@ export class BookingsComponent implements OnInit {
   }
 
   newBooking(): void {
-    // TODO: abrir modal para crear un nuevo turno - Modal o nuevo compo?
-    alert('Funcionalidad de crear nuevo turno aún no implementada');
+    this.showNewBookingModal = true;
   }
 
   onBookingSelect(event: any): void {
     const booking = event.data as Booking;
-    // TODO: abrir modal de detalle del turno - Modal o nuevo compo?
+    // TODO: abrir en una nueva ventana, la orden a la que pertenece este booking -> nueva página de orden
     alert(`Turno seleccionado: ${booking._id}`);
-    console.log("Selected booking:", booking);
   }
 
   onSortChange(event: { value: SortBy }): void {
