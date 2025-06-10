@@ -81,6 +81,7 @@ import { NewBookingModalComponent } from '@components/new-booking/new-booking.co
             <th>Precio</th>
             <th>Estado</th>
             <th>Estado pago</th>
+            <th>Cancelación</th>
           </tr>
         </ng-template>
         <ng-template #body let-booking>
@@ -92,6 +93,7 @@ import { NewBookingModalComponent } from '@components/new-booking/new-booking.co
             <td>{{ booking.price | currency:'$' }}</td>
             <td><p-tag [value]="statusSeverity[booking.status].label" [severity]="statusSeverity[booking.status].severity" /></td>
             <td><p-tag [value]="statusSeverity[booking.orderStatus].label" [severity]="statusSeverity[booking.orderStatus].severity" /></td>
+            <td><p-button *ngIf="booking.stormInsurance" (click)="stormCancell(booking)">Tormenta</p-button></td>
           </tr>
         </ng-template>
       </p-table>
@@ -176,7 +178,6 @@ export class BookingsComponent implements OnInit {
           ...booking,
           startTime: this.formatTime(booking.startTime),
           endTime: this.formatTime(booking.endTime),
-
         }));
 
         const params = new URLSearchParams({
@@ -241,6 +242,10 @@ export class BookingsComponent implements OnInit {
     const booking = event.data as Booking;
     // TODO: abrir en una nueva ventana, la orden a la que pertenece este booking -> nueva página de orden
     alert(`Turno seleccionado: ${booking._id}`);
+  }
+
+  stormCancell(booking: Booking): void {
+
   }
 
   onSortChange(event: { value: SortBy }): void {

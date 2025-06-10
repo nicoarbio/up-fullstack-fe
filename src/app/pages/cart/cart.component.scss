@@ -6,3 +6,24 @@
   align-items: center;
 }
 
+.order-summary-container {
+  max-width: 600px;
+  margin: 0 auto;
+
+  .booking-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #fafafa;
+  }
+
+  .extras, .totals {
+    margin-top: 1.5rem;
+
+  }
+
+  .totals p {
+    margin: 0.25rem 0;
+  }
+}

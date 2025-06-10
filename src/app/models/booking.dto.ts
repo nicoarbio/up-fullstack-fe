@@ -63,6 +63,7 @@ export interface Booking {
   startTime: string | DateTime,
   endTime: string | DateTime,
   price: number,
+  stormInsurance: boolean,
   status: BookingStatus,
   orderStatus: OrderStatus,
   refundStatus: ItemRefundStatus,
