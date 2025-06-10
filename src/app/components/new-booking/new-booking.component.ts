@@ -16,6 +16,7 @@ import { Product, ProductLabel } from '@models/business-rules.enum';
 import { ServiceAvailabilityResponseDto } from '@models/service-availability.dto';
 import { BusinessRulesService } from '@services/business-rules.service';
 import { OrderResponse, RequestedBooking } from '@models/booking.dto';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-booking-modal',
@@ -149,7 +150,9 @@ export class NewBookingModalComponent implements OnInit, OnChanges {
   constructor(
     private businessRules: BusinessRulesService,
     private backendService: BackendService,
-    private cartService: CartService) {
+    private cartService: CartService,
+    private router: Router
+    ) {
 
     if (!window.document.location.pathname.includes("cart")) {
       this.confirmButtonLabel += ' e ir al carrito';
@@ -264,6 +267,8 @@ export class NewBookingModalComponent implements OnInit, OnChanges {
           this.step = 1; // Reset step to 1 for next booking
           this.booking = { passengers: [{}] } as RequestedBooking; // Reset booking
           this.bookingDate = this.today; // Reset booking date
+          this.addedExtraPassanger = false; // Reset extra passenger flag
+          this.router.navigateByUrl('/cart');
         });
       },
       error: (error) => {
@@ -300,25 +305,4 @@ export class NewBookingModalComponent implements OnInit, OnChanges {
     }
   }
 
-  /*
-  confirmarReserva(): void {
-    const cantidad = this.form.value.multiplePassengers ? 2 : 1;
-    const pasajerosSeleccionados = this.pasajeros.slice(0, cantidad);
-
-    const slotDateTime = DateTime.fromJSDate(this.form.value.date)
-      .set({ hour: parseInt(this.form.value.slot.split(':')[0]), minute: parseInt(this.form.value.slot.split(':')[1]) });
-
-    const reserva: ReservationDraft = {
-      product: this.form.value.product,
-      slotStart: slotDateTime.toISO(),
-      passengers: pasajerosSeleccionados.map(p => ({
-        fullName: p.fullName,
-        birthdate: DateTime.fromJSDate(p.birthdate).toISO()
-      }))
-    };
-
-    this.cart.add(reserva); // asumimos que el cartService tiene un método add
-    this.visible = false;
-  }
-  */
 }
