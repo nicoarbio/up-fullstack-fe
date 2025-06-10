@@ -119,6 +119,7 @@ export class BookingsComponent implements OnInit {
     dateForNgModel: this.searchDate.toJSDate(),
     onNgModelChange: (date: Date) => {
       this.searchDate = DateTime.fromJSDate(date);
+      this.loadBookings();
     }
   }
 
@@ -263,11 +264,13 @@ export class BookingsComponent implements OnInit {
 
   goToPreviousDate(): void {
     this.searchDate = this.searchDate.minus({ days: 1 });
+    this.searchDateJs.dateForNgModel = this.searchDate.toJSDate();
     this.loadBookings();
   }
 
   goToNextDate(): void {
     this.searchDate = this.searchDate.plus({ days: 1 });
+    this.searchDateJs.dateForNgModel = this.searchDate.toJSDate();
     this.loadBookings();
   }
 

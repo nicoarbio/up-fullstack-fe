@@ -63,4 +63,8 @@ export class CartService {
     localStorage.setItem(CartService.ORDER_CREATION_REQUEST_KEY, JSON.stringify(order));
   }
 
+  clearCart(): void {
+    localStorage.removeItem(CartService.ORDER_CREATION_REQUEST_KEY);
+  }
+
 }

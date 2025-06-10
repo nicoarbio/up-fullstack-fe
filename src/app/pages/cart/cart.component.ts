@@ -3,11 +3,14 @@ import { CartService } from '@services/cart.service';
 import { OrderCreationRequest, OrderResponse } from '@models/booking.dto';
 import { BackendService } from '@connectors/backend.service';
 import { NgForOf, NgIf } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { OverlayComponent } from '@layouts/overlay/overlay.component';
 
 @Component({
   selector: 'app-cart',
   imports: [
-    NgIf
+    NgIf,
+    ButtonModule
   ],
   template: `
     <ng-container *ngIf="isCartEmpty else cartItems">
@@ -23,6 +26,9 @@ import { NgForOf, NgIf } from '@angular/common';
         <h2>Carrito response</h2>
         {{ JSON.stringify(orderValidationData) }}
       </div>
+
+      <p-button label="Reservar con pago en efectivo" (click)="createOrder()"></p-button>
+
     </ng-template>
 
   `,
@@ -48,6 +54,20 @@ export class CartComponent implements OnInit {
         this.orderValidationData = response;
       }
     })
+  }
+
+  createOrder() {
+    OverlayComponent.spinnerEvent.emit(true);
+    this.backendService.createOrder(this.orderRequestData).subscribe({
+      next: (response: OrderResponse) => {
+        this.orderValidationData = response;
+        this.cartService.clearCart();
+        OverlayComponent.spinnerEvent.emit(false);
+      },
+      error: (error) => {
+        console.error('Error creating order:', error);
+      }
+    });
   }
 
   protected readonly JSON = JSON;
