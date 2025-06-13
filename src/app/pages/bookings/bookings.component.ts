@@ -245,7 +245,7 @@ export class BookingsComponent implements OnInit {
   }
 
   stormCancell(booking: Booking): void {
-
+    alert("Efectivamente se puede cancelar el turno por tormenta, pero no está implementado aún.");
   }
 
   onSortChange(event: { value: SortBy }): void {
